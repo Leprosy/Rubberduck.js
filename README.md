@@ -1,4 +1,4 @@
-WL
+Rubberduck.js
 ==
 
-WL...mi interpretación de lo que sería MVC en JS
+MVC en JS, pero hecho SIMPLE. Como debe ser.
