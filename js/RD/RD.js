@@ -98,26 +98,16 @@ RD.Application.prototype.getController = function(name) {
         var controllerPath = _this.path + 'controllers/';
 
         RD.include(controllerPath + name + '.js', function() {
+            /* Namespacing and misc. attributes */
             _this.controllers[name] = window[name];
+            _this.controllers[name].name = name;
+            _this.controllers[name].app = _this;
             delete window[name];
         });
-    } else {
-        return this.controllers[name];
     }
+
+    return this.controllers[name];
 }
-
-
-
-/**
- * View
- */
-RD.View = function(opt) {
-    $.extend(this, opt);
-}
-RD.View.prototype.render = function() {
-    console.log("view " + this.name + ":" + this.id + " rended");
-}
-
 
 
 /**
@@ -125,32 +115,37 @@ RD.View.prototype.render = function() {
  */
 RD.Controller = function(opt) {
     $.extend(this, opt);
-
-    /* Views */
-    if (typeof this.views == 'string') {
-        var tmp = this.views;
-        this.views = {};
-        this.views[tmp] = undefined;
-    }
-
-    if (typeof app.controllers == 'object') {
-        for (name in app.controllers) {
-            app.getController(name);
-        }
-    }
 }
 RD.Controller.prototype.getView = function(src, callback) {
+    var _this = this;
+
+    src = this.app.path + "views/" + this.name + "/" + src + ".tpl"
     RD.debug(function(){console.group('Including view in ' + src)});
     RD.debug('Including view ' + src);
 
     $.ajax(src, {
         complete: function(data, msg) {
             if (msg == 'success') {
-                callback(data.responseText);
+                callback(new RD.View(data.responseText, _this));
                 RD.debug('View ' + src + ' included');
             }
         } 
-    })
+    });
 
     RD.debug(function(){console.groupEnd()});
+}
+
+
+/**
+ * View
+ */
+RD.View = function(data, controller) {
+    this.template = data;
+    this.handlebars = Handlebars.compile(data);
+    this.controller = controller;
+}
+RD.View.prototype.render = function(data) {
+    $('#' + this.controller.app.renderTo).html(
+        this.handlebars(data)
+    );
 }

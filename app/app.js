@@ -1,6 +1,6 @@
 /* Create app */
 var app = RD.createApp({
-    name: 'invento',
+    name: 'testApp',
     controllers: 'Page'
 });
 

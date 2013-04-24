@@ -1,13 +1,10 @@
 Page = new RD.Controller();
 
 Page.index = function() {
-    this.getView('app/views/Page/index.tpl', function(data) {
-        var view = Handlebars.compile(data)
-
-        $('#' + app.renderTo).html(view({
+    this.getView('index', function(view) {
+        view.render({
             title: "Title of view",
             content: "Content of the view"
-        }));
-    })
-    
+        });
+    });
 }
