@@ -1,5 +1,5 @@
 /* Create app */
-var app = WL.createApp({
+var app = RD.createApp({
     name: 'invento',
     controllers: 'Page'
 });

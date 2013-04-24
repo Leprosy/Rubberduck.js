@@ -1,7 +1,7 @@
 /**
- * WL Sinlgeton
+ * RD Sinlgeton
  */
-var WL = {
+var RD = {
     debug: function(obj) {
         var dbg = true;
         if (dbg) {
@@ -14,20 +14,20 @@ var WL = {
     },
 
     createApp: function(opt) {
-        WL.debug(function(){console.group('Creating App')});
+        RD.debug(function(){console.group('Creating App')});
         var options = {
             path: 'app/',
-            name: 'WLapp',
+            name: 'RDapp',
             controllers: 'Index',
             renderTo: 'app'
         }
 
         $.extend(options, opt);
-        var app = new WL.Application(options)
-        WL.debug('App created', options);
+        var app = new RD.Application(options)
+        RD.debug('App created', options);
 
         /* Controllers */
-        WL.debug('Creating app controllers');
+        RD.debug('Creating app controllers');
         var controllerPath = app.path + 'controllers/';
 
         if (typeof app.controllers == 'object') {
@@ -36,19 +36,19 @@ var WL = {
             }
         }
 
-        WL.debug(function(){console.groupEnd()});
+        RD.debug(function(){console.groupEnd()});
         return app;
     },
 
     include: function(src, callback) {
-        WL.debug(function(){console.group('Including class in ' + src)});
-        WL.debug('Including ' + src);
+        RD.debug(function(){console.group('Including class in ' + src)});
+        RD.debug('Including ' + src);
         var scr = document.createElement('script');
 
         if (typeof callback == 'function') {            
             scr.src = src;
             scr.onload = function() {
-                WL.debug(src + ' included and ready');
+                RD.debug(src + ' included and ready');
                 callback();
             };
 
@@ -65,7 +65,7 @@ var WL = {
             })
         }
 
-        WL.debug(function(){console.groupEnd()});
+        RD.debug(function(){console.groupEnd()});
     }
 }
 
@@ -74,7 +74,7 @@ var WL = {
 /**
  * Application
  */
-WL.Application = function(opt) {
+RD.Application = function(opt) {
     $.extend(this, opt);
 
     /* Controller list */
@@ -87,17 +87,17 @@ WL.Application = function(opt) {
     /* Fire when ready */
     var _this = this;
     $(window).load(function() {
-        WL.debug('Application ready');
+        RD.debug('Application ready');
         _this.ready();
     });
 };
-WL.Application.prototype.getController = function(name) {
+RD.Application.prototype.getController = function(name) {
     var _this = this;
 
     if (typeof this.controllers[name] != 'object') {
         var controllerPath = _this.path + 'controllers/';
 
-        WL.include(controllerPath + name + '.js', function() {
+        RD.include(controllerPath + name + '.js', function() {
             _this.controllers[name] = window[name];
             delete window[name];
         });
@@ -111,10 +111,10 @@ WL.Application.prototype.getController = function(name) {
 /**
  * View
  */
-WL.View = function(opt) {
+RD.View = function(opt) {
     $.extend(this, opt);
 }
-WL.View.prototype.render = function() {
+RD.View.prototype.render = function() {
     console.log("view " + this.name + ":" + this.id + " rended");
 }
 
@@ -123,7 +123,7 @@ WL.View.prototype.render = function() {
 /**
  * Controller
  */
-WL.Controller = function(opt) {
+RD.Controller = function(opt) {
     $.extend(this, opt);
 
     /* Views */
@@ -138,4 +138,19 @@ WL.Controller = function(opt) {
             app.getController(name);
         }
     }
+}
+RD.Controller.prototype.getView = function(src, callback) {
+    RD.debug(function(){console.group('Including view in ' + src)});
+    RD.debug('Including view ' + src);
+
+    $.ajax(src, {
+        complete: function(data, msg) {
+            if (msg == 'success') {
+                callback(data.responseText);
+                RD.debug('View ' + src + ' included');
+            }
+        } 
+    })
+
+    RD.debug(function(){console.groupEnd()});
 }

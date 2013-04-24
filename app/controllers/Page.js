@@ -1,5 +1,13 @@
-Page = new WL.Controller();
+Page = new RD.Controller();
 
 Page.index = function() {
-    console.log('This is the Page controller index method');
+    this.getView('app/views/Page/index.tpl', function(data) {
+        var view = Handlebars.compile(data)
+
+        $('#' + app.renderTo).html(view({
+            title: "Title of view",
+            content: "Content of the view"
+        }));
+    })
+    
 }
