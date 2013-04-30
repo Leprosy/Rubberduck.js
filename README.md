@@ -1,4 +1,4 @@
 Rubberduck.js
 ==
 
-MVC en JS, pero hecho SIMPLE. Como debe ser.
+MVC in JS, but done SIMPLE. Like the way it must be.
