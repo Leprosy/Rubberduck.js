@@ -1,10 +1,9 @@
 /* Create app */
 var app = RD.createApp({
     name: 'testApp',
-    controllers: 'Page'
-});
+    controllers: ['Page', 'Foo'],
 
-/* Start */
-app.ready = function() {
-    app.getController('Page').index();
-};
+    ready: function() {
+        app.getController('Page').index();
+    }
+});

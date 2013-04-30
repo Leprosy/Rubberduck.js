@@ -2,19 +2,11 @@
  * RD Sinlgeton
  */
 var RD = {
-    debug: function(obj) {
-        var dbg = true;
-        if (dbg) {
-            if (typeof obj == 'string') {
-                console.debug(obj);
-            } else {
-                obj();
-            }
-        }
-    },
-
     createApp: function(opt) {
-        RD.debug(function(){console.group('Creating App')});
+        console.group('Creating App');
+
+        /* Creating app attributes and app instance */
+        console.log('Creating attributes');
         var options = {
             path: 'app/',
             name: 'RDapp',
@@ -23,49 +15,49 @@ var RD = {
         }
 
         $.extend(options, opt);
-        var app = new RD.Application(options)
-        RD.debug('App created', options);
+        var app = new RD.Application(options);
+        console.log('App created', options);
 
-        /* Controllers */
-        RD.debug('Creating app controllers');
+        /* Instancing the app controllers */
+        console.log('Creating app controllers');
         var controllerPath = app.path + 'controllers/';
 
         if (typeof app.controllers == 'object') {
-            for (name in app.controllers) {
-                app.getController(name);
+            for (i in app.controllers) {
+                app.getController(app.controllers[i]);
             }
         }
 
-        RD.debug(function(){console.groupEnd()});
+        /* Done */
+        console.groupEnd();
         return app;
     },
 
     include: function(src, callback) {
-        RD.debug(function(){console.group('Including class in ' + src)});
-        RD.debug('Including ' + src);
-        var scr = document.createElement('script');
+        console.group('Including file ' + src);
+        var scrpt = document.createElement('script');
 
         if (typeof callback == 'function') {            
-            scr.src = src;
-            scr.onload = function() {
-                RD.debug(src + ' included and ready');
+            scrpt.src = src;
+            scrpt.onload = function(ev) {
+                console.log(src + ' included and ready');
                 callback();
             };
 
-            document.body.appendChild(scr);
-        } else if(typeof callback == 'boolean' && !callback) {
+            document.body.appendChild(scrpt);
+        } else {
             $.ajax(src, {
                 async: false,
                 complete: function(data, msg) {
                     if (msg == 'success') {
-                        scr.innerHTML = data.responseText;
-                        document.body.appendChild(scr);
+                        scrpt.innerHTML = data.responseText;
+                        document.body.appendChild(scrpt);
                     }
                 } 
-            })
+            });
         }
 
-        RD.debug(function(){console.groupEnd()});
+        console.groupEnd();
     }
 }
 
@@ -87,14 +79,13 @@ RD.Application = function(opt) {
     /* Fire when ready */
     var _this = this;
     $(window).load(function() {
-        RD.debug('Application ready');
+        console.log('Application ready');
         _this.ready();
     });
 };
-RD.Application.prototype.getController = function(name) {
-    var _this = this;
-
+RD.Application.prototype.getController = function(name, callback) {
     if (typeof this.controllers[name] != 'object') {
+        var _this = this;
         var controllerPath = _this.path + 'controllers/';
 
         RD.include(controllerPath + name + '.js', function() {
@@ -103,6 +94,10 @@ RD.Application.prototype.getController = function(name) {
             _this.controllers[name].name = name;
             _this.controllers[name].app = _this;
             delete window[name];
+
+            if (typeof callback == 'function') {
+                callback(_this.controllers[name]);
+            }
         });
     }
 
@@ -114,25 +109,32 @@ RD.Application.prototype.getController = function(name) {
  * Controller
  */
 RD.Controller = function(opt) {
+    this.views = {};
     $.extend(this, opt);
 }
 RD.Controller.prototype.getView = function(src, callback) {
-    var _this = this;
+    if (typeof this.views[src] == 'undefined') {
+        var _this = this;
+        var _name = src;
+        src = this.app.path + "views/" + this.name + "/" + src + ".tpl"
+        console.group('Including view in ' + src);
+        console.log('Including view ' + src);
+    
+        $.ajax(src, {
+            complete: function(data, msg) {
+                if (msg == 'success') {
+                    var view = new RD.View(data.responseText, _this)
+                    _this.views[_name] = view;
+                    callback(view);
+                    console.log('View ' + src + ' included');
+                }
+            } 
+        });
 
-    src = this.app.path + "views/" + this.name + "/" + src + ".tpl"
-    RD.debug(function(){console.group('Including view in ' + src)});
-    RD.debug('Including view ' + src);
-
-    $.ajax(src, {
-        complete: function(data, msg) {
-            if (msg == 'success') {
-                callback(new RD.View(data.responseText, _this));
-                RD.debug('View ' + src + ' included');
-            }
-        } 
-    });
-
-    RD.debug(function(){console.groupEnd()});
+        console.groupEnd();
+    } else {
+        callback(this.views[src]);
+    }
 }
 
 
