@@ -1,4 +1,4 @@
-<strong>Foo/index/</strong>
+<strong>Controllers/Foo/index/</strong>
 
 <h1>{{title}}</h1>
 <hr />

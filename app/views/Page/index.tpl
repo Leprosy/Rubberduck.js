@@ -1,4 +1,4 @@
-<strong>Page/index/</strong>
+<strong>Controllers/Page/index/</strong>
 
 <h1>{{title}}</h1>
 <hr />
